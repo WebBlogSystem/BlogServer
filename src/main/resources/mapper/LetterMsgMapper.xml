@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.LetterMsgDao">
+    <select id="getAllChatroomMsgByChatroomIdNum" resultType="int">
+        select count(*) from lettermsg where letterid=#{chatroomid}
+        <if test="search != null and search != ''">
+            and msg like CONCAT("%", #{search}, "%")
+        </if>
+    </select>
+    <select id="getAllChatroomMsgByChatroomId" resultType="domain.LetterMsg">
+        select * from lettermsg where letterid=#{letterid}
+        <if test="search != null and search != ''">
+            and msg like CONCAT("%", #{search}, "%")
+        </if>
+        order by createtime desc limit #{start},#{size}
+    </select>
+    <insert id="addChatroomMsg" useGeneratedKeys="true" keyProperty="id">
+        insert into lettermsg (letterid,fromuserid,touserid,msg) values(#{lettermsg.letterId},#{lettermsg.fromUserId},#{lettermsg.toUserId},#{lettermsg.msg})
+    </insert>
+    <delete id="deleteChatroomMsg">
+        delete from lettermsg where id=#{chatroommsgid}
+    </delete>
+    <select id="getLatestLetterMsgByLetterId" resultType="domain.LetterMsg">
+        select * from lettermsg where letterid=#{letterid} order by createtime desc limit 1;
+    </select>
+    <select id="getLetterMsgByLetterMsgId" resultType="domain.LetterMsg">
+        select * from lettermsg where id=#{lettermsgid}
+    </select>
+    <update id="swtichLetterMsgFlag">
+        update lettermsg set flag=1 where id=#{lettermsgid}
+    </update>
+    <select id="getNoReadLetterMsg" resultType="int">
+        select count(*) from lettermsg where touserid=#{userid} and letterid=#{letterid} and flag=0
+    </select>
+    <select id="getNoReadLetterMsgByUserId" resultType="int">
+        select count(*) from lettermsg where touserid=#{userid} and flag=0
+    </select>
+</mapper>

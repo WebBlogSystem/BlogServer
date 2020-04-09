@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.CommentsHistoryDao">
+    <select id="getCommentsHistorys" resultType="domain.CommentsHistory">
+        select ch.* from commenthistory as ch,comments as c where ch.commentid = c.id
+        <if test="search != null and search != ''">
+            and c.msg like CONCAT('%', #{search}, '%')
+        </if>
+        order by ch.createtime desc limit #{start},#{size}
+    </select>
+    <insert id="addCommentsHistory">
+        insert into commenthistory (commentid,flag,checkmsg) values(#{commentsHistory.commentid},#{commentsHistory.flag},#{commentsHistory.checkmsg})
+    </insert>
+    <select id="getCommentsHistorysNum" resultType="int">
+        select count(*) from commenthistory as ch,comments as c where ch.commentid = c.id
+        <if test="search != null and search != ''">
+            and c.msg like CONCAT('%', #{search}, '%')
+        </if>
+    </select>
+</mapper>

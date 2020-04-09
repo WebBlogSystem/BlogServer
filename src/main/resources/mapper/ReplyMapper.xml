@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.ReplyDao">
+    <select id="getAllReplyByUserIdNum" resultType="int">
+        select count(*) from reply where fromuserid=#{userid}
+        <if test="search != null and search != ''">
+            and msg like CONCAT("%", #{search}, "%")
+        </if>
+    </select>
+    <select id="getAllReplyByUserId" resultType="domain.Reply">
+        select * from reply where fromuserid=#{userid}
+        <if test="search != null and search != ''">
+            and msg like CONCAT("%", #{search}, "%")
+        </if>
+        order by createtime desc limit #{start},#{size} ;
+    </select>
+    <select id="getAllReplyByCommentIdNum" resultType="int">
+        select count(*) from reply where commentsid=#{commentsid};
+    </select>
+    <select id="getAllReplyByCommentId" resultType="domain.Reply">
+        select * from reply where commentsid=#{commentsid} order by createtime desc;
+    </select>
+    <delete id="deleteReply">
+        delete from reply where id=#{replyid}
+    </delete>
+    <insert id="addReply" useGeneratedKeys="true" keyProperty="id">
+        insert into reply (commentsid,fromuserid,touserid,msg) values (#{reply.commentsId},#{reply.fromUserId},#{reply.toUserId},#{reply.msg})
+    </insert>
+    <select id="getReplyByReplyId" resultType="domain.Reply">
+        select * from reply where id=#{id}
+    </select>
+</mapper>

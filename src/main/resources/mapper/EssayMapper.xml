@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.EssayDao">
+    <select id="getAllEssays" resultType="domain.Essay">
+        select * from essay where 1=1
+        <if test="search != null and search != ''">
+            and title like CONCAT('%', #{search}, '%')
+        </if>
+        <foreach collection="list" item="item" open=" and ( " separator=" or " close=" )">
+            flag=#{item}
+        </foreach>
+        order by createtime desc limit #{start},#{size}  ;
+    </select>
+    <select id="getAllEssaysNum" resultType="int">
+        select count(*) from essay where 1=1
+        <if test="search != null and search != ''">
+        and title like CONCAT("%", #{search}, "%")
+        </if>
+        <foreach collection="list" item="item" open=" and ( " separator=" or " close=" )">
+            flag=#{item}
+        </foreach>
+    </select>
+    <select id="getAllEssaysByUserIdNum" parameterType="int" resultType="int">
+        select count(*) from essay where 1=1
+        <if test="userid != 0">
+            and userid=#{userid}
+        </if>
+        <if test="cateid != 0">
+            and id in (select essayid from essaycate where cateid=#{cateid})
+        </if>
+        <if test="search != null and search != ''">
+            and title like CONCAT("%", #{search}, "%")
+        </if>
+        <foreach collection="list" item="item" open=" and ( " separator=" or " close=" )">
+            flag=#{item}
+        </foreach>
+    </select>
+    <select id="getAllEssaysByUserId" resultType="domain.Essay">
+        select * from essay where 1=1
+        <if test="userid != 0">
+            and userid=#{userid}
+        </if>
+        <if test="cateid != 0">
+            and id in (select essayid from essaycate where cateid=#{cateid})
+        </if>
+        <if test="search != null and search != ''">
+            and title like CONCAT("%", #{search}, "%")
+        </if>
+        <foreach collection="list" item="item" open=" and ( " separator=" or " close=" )">
+            flag=#{item}
+        </foreach>
+        order by createtime desc limit #{start},#{size}
+    </select>
+    <select id="getAllEssaysByCateIdNum" resultType="int">
+        <choose>
+            <when test="flag == 1">
+                select count(*) from essaycate where cateid=#{cateid}
+            </when>
+            <when test="flag == 2">
+                select count(*) from essay where userid=#{userid} and ((id not in (select essayid from essaycate where cateid=#{cateid})) or catenums=0)
+            </when>
+        </choose>
+    </select>
+    <select id="getAllEssaysByCateId" resultType="domain.Essay">
+        <choose>
+            <when test="flag == 1">
+                select e.* from essay as e,essaycate as ec where e.id=ec.essayid and ec.cateid=#{cateid} order by e.createtime desc limit #{start},#{size}
+            </when>
+            <when test="flag == 2">
+                select * from essay where userid=#{userid} and ((id not in (select essayid from essaycate where cateid=#{cateid})) or catenums=0) order by createtime desc limit #{start},#{size}
+            </when>
+        </choose>
+    </select>
+    <select id="getEssayByEssayId" resultType="domain.Essay">
+        select * from essay where id=#{essayid}
+    </select>
+    <select id="getUserByEssayId" resultType="domain.User">
+        select * from user where id in (select userid from essay where id=#{essayid});
+    </select>
+    <delete id="deleteEssay">
+        delete from essay where id=#{essayid}
+    </delete>
+    <update id="updateAllEssaysCateNumsByCateId">
+        update essay set catenums=catenums-1 where id in (select essayid from essaycate where cateid=#{cateid})
+    </update>
+    <select id="getAllNotEssaysByCateIdNum" resultType="int">
+        select count(*) from essay where (id not in (select essayid from essaycate where cateid=#{cateid})) or catenums=0
+    </select>
+    <select id="getAllNotEssaysByCateId" resultType="domain.Essay">
+        select * from essay where id not in (select essayid from essaycate where cateid=#{cateid}) order by createtime desc
+    </select>
+    <select id="getAllEssaysByCateNumsNum" resultType="int">
+        select count(*) from essay where catenums=#{catenums}
+    </select>
+    <select id="getAllEssaysByCateNums" resultType="domain.Essay">
+        select * from essay where catenums=#{catenums} order by createtime desc limit #{start},#{size}
+    </select>
+    <update id="updateEssayFlag">
+        update essay set flag=#{flag} where id=#{essayid}
+    </update>
+    <update id="updateEssayFlagAndMsg">
+        update essay set flag=#{flag},checkmsg=#{msg} where id=#{essayid}
+    </update>
+    <select id="getAllEssaysUnCheckNum" resultType="int">
+        select count(*) from essay where 1=1 and flag=0
+        <if test="search != null and search != ''">
+            and title like CONCAT("%", #{search}, "%")
+        </if>
+        order by createtime desc;
+    </select>
+    <select id="getAllEssaysUnCheck" resultType="domain.Essay">
+        select * from essay where 1=1 and flag=0
+        <if test="search != null and search != ''">
+            and title like CONCAT("%", #{search}, "%")
+        </if>
+        order by createtime desc limit #{start},#{size};
+    </select>
+    <insert id="addEssay" useGeneratedKeys="true" keyProperty="id">
+        insert into essay (userid, title, msg,htmlmsg) values(#{essay.userId},#{essay.title},#{essay.msg},#{essay.htmlmsg})
+    </insert>
+    <update id="updateEssayCateNums">
+        update essay set catenums=#{catenums} where id=#{essayid}
+    </update>
+    <select id="getAllWholeEssaysByCateId" resultType="domain.Essay">
+        <choose>
+            <when test="flag == 1">
+                select e.* from essay as e,essaycate as ec where e.id=ec.essayid and cateid=#{cateid} order by e.createtime desc
+            </when>
+            <when test="flag == 2">
+                select * from essay where userid=#{userid} and (id not in (select essayid from essaycate where cateid=#{cateid})) or catenums=0 order by createtime desc
+            </when>
+        </choose>
+    </select>
+    <update id="updateEssay">
+        update essay set title=#{title},msg=#{msg},htmlmsg=#{htmlmsg} where id=#{id}
+    </update>
+    <select id="getAllEssaysByAdminNums" resultType="int">
+        select count(*) from essay where 1=1
+        <if test="flag==0">
+            and flag=0
+        </if>
+        <if test="flag==1">
+            and (flag=1 or flag=-1)
+        </if>
+    </select>
+    <select id="getAllEssaysByAdmin" resultType="domain.Essay">
+        select * from essay where 1=1
+        <if test="flag==0">
+            and flag=0
+        </if>
+        <if test="flag==1">
+            and (flag=1 or flag=-1)
+        </if>
+        order by createtime desc limit #{start},#{size}
+    </select>
+</mapper>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.ImgDao">
+    <select id="getImgByImgId" resultType="java.lang.String">
+        select location from image where id=#{imgid};
+    </select>
+    <insert id="addImg" useGeneratedKeys="true" keyProperty="id">
+        insert into image (location) values (#{img.location})
+    </insert>
+    <select id="getImgByLocation" resultType="int">
+        select id from image where location=#{location}
+    </select>
+</mapper>

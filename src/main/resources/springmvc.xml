@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+    <!-- 配置spring创建容器时要扫描的包 -->
+
+    <context:component-scan base-package="Controller">
+        <context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="10485760"/>
+    </bean>
+
+    <mvc:resources location="/css/" mapping="/css/**" />
+    <mvc:resources location="/js/" mapping="/js/**" />
+    <mvc:resources location="/images/" mapping="/images/**" />
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean id="mappingJacksonHttpMessageConverter" class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/html;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+<!--    <mvc:interceptors>-->
+<!--        <mvc:interceptor>-->
+<!--            <mvc:mapping path="/admin/*"/>-->
+<!--            <mvc:exclude-mapping path="/admin/login"/>-->
+<!--            <bean class="Interceptor.AdminInterceptor"/>-->
+<!--        </mvc:interceptor>-->
+<!--    </mvc:interceptors>-->
+
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/user/*"/>
+            <bean class="Interceptor.UserPublicInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/admin/*"/>
+            <bean class="Interceptor.AdminPublicInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/admin/getEssays"/>
+            <mvc:mapping path="/admin/setPassword"/>
+            <mvc:mapping path="/admin/setCommentFlag"/>
+            <mvc:mapping path="/admin/setEssayFlag"/>
+            <mvc:mapping path="/admin/getComments"/>
+            <mvc:mapping path="/admin/getEssayHistorys"/>
+            <mvc:mapping path="/admin/getCommentsHistorys"/>
+            <bean class="Interceptor.AdminInterceptor"/>
+        </mvc:interceptor>
+        <mvc:interceptor>
+            <mvc:mapping path="/user/getAllEssaysByCateId"/>
+            <mvc:mapping path="/user/updateUser"/>
+            <mvc:mapping path="/user/upload"/>
+            <mvc:mapping path="/user/editEssay"/>
+            <mvc:mapping path="/user/updateCateByCateId"/>
+            <mvc:mapping path="/user/addEssay"/>
+            <mvc:mapping path="/user/addCate"/>
+            <mvc:mapping path="/user/addEssayCate"/>
+            <mvc:mapping path="/user/updateUp"/>
+            <mvc:mapping path="/user/deleteEssayCate"/>
+            <mvc:mapping path="/user/deleteEssayByEssayId"/>
+            <mvc:mapping path="/user/addComments"/>
+            <mvc:mapping path="/user/getCommentsByUserId"/>
+            <mvc:mapping path="/user/deleteComment"/>
+            <mvc:mapping path="/user/getReplyByUserId"/>
+            <mvc:mapping path="/user/deleteReplyByReplyId"/>
+            <mvc:mapping path="/user/addReply"/>
+            <mvc:mapping path="/user/getAttentionUserByUserId"/>
+            <mvc:mapping path="/user/deleteAttention"/>
+            <mvc:mapping path="/user/addAttention"/>
+            <mvc:mapping path="/user/getFanUserByUserId"/>
+            <mvc:mapping path="/user/addLetter"/>
+            <mvc:mapping path="/user/getLetterByUserId"/>
+            <mvc:mapping path="/user/getNoReadLetterMsgNums"/>
+            <mvc:mapping path="/user/deleteLetterByLetterId"/>
+            <mvc:mapping path="/user/getLetterByUserId1AndUserId2"/>
+            <mvc:mapping path="/user/getLetterMsgByLetterId"/>
+            <mvc:mapping path="/user/switchLetterMsgFlag"/>
+            <mvc:mapping path="/user/addLetterMsg"/>
+            <mvc:mapping path="/user/setPassword"/>
+            <bean class="Interceptor.UserInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+</beans>

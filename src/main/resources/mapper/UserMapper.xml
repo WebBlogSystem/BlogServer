@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.UserDao">
+    <select id="queryUser" resultType="domain.User">
+        select * from user where mail=#{user.mail} and password=#{user.password}
+    </select>
+    <insert id="insertUser" parameterType="domain.User">
+        insert into user (mail,username,password,intro,sex,code) values(#{user.mail},#{user.username},#{user.password},#{user.intro},#{user.sex},#{user.code})
+    </insert>
+    <update id="active" parameterType="string">
+        update user set status=1 where code=#{code}
+    </update>
+    <select id="queryUserByUserId" resultType="domain.User" parameterType="int">
+        select * from user where id=#{id}
+    </select>
+    <select id="getAllAttentionUserByUserIdNum" resultType="int">
+        select count(*) from attention where fromuserid=#{userid};
+    </select>
+    <select id="getAllAttentionUserByUserId" resultType="domain.User">
+        select * from user where id in (select touserid from attention where fromuserid=#{userid});
+    </select>
+    <select id="getAllFanUserByUserIdNum" resultType="int">
+        select count(*) from attention where touserid=#{userid};
+    </select>
+    <select id="getAllFanUserByUserId" resultType="domain.User">
+        select * from user where id in (select fromuserid from attention where touserid=#{userid});
+    </select>
+
+    <update id="updateUser">
+        update user set username=#{user.username},imgid=#{user.imgid},sex=#{user.sex},intro=#{user.intro} where id=#{user.id}
+    </update>
+
+    <select id="getUsersNum" resultType="int">
+        select count(*) from user where 1=1
+        <if test="search != null and search != ''">
+            and username like CONCAT("%", #{search}, "%")
+        </if>
+    </select>
+    <select id="getUsers" resultType="domain.User">
+        select * from user where 1=1
+        <if test="search != null and search != ''">
+            and username like CONCAT("%", #{search}, "%")
+        </if>
+    </select>
+    <delete id="deleteUser">
+        delete from user where id=#{userid};
+    </delete>
+    <update id="updatePassword">
+        update user set password=#{password} where id=#{userid}
+    </update>
+</mapper>
