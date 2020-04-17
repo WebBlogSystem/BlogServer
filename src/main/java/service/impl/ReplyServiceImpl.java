@@ -13,13 +13,13 @@ public class ReplyServiceImpl implements ReplyService {
     @Autowired
     private ReplyDao replyDao;
     @Override
-    public int queryAllReplyByUserIdNum(int userId,String search) {
-        return replyDao.getAllReplyByUserIdNum(userId,search);
+    public int queryAllReplyByUserIdNum(int userId,String search,int flag) {
+        return replyDao.getAllReplyByUserIdNum(userId,search,flag);
     }
 
     @Override
-    public List<Reply> queryAllReplyByUserId(PageBean pb, int userId,String search) {
-        return replyDao.getAllReplyByUserId((pb.getCurrentPage()-1)*10,pb.getPageSize(),userId,search);
+    public List<Reply> queryAllReplyByUserId(PageBean pb, int userId,String search,int flag) {
+        return replyDao.getAllReplyByUserId((pb.getCurrentPage()-1)*10,pb.getPageSize(),userId,search,flag);
     }
 
     @Override

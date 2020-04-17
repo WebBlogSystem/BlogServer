@@ -18,4 +18,5 @@ public interface CateDao {
     public List<Cate> getAllNotCatesByEssayIdAndUserId(@Param("start") int start,@Param("size") int size,@Param("essayid") int essayid,@Param("userid") int userid);
     public void addCate(@Param("cate") Cate cate);
     public Cate getCateByCateName(@Param("userid") int userid,@Param("catename") String catename);
+    public Cate getCateByCateId(@Param("cateid") int cateid);
 }

@@ -79,5 +79,10 @@ public class CateServiceImpl implements CateService {
         return cateDao.getCateByCateName(userId,catename);
     }
 
+    @Override
+    public Cate queryCateByCateId(int cateId) {
+        return cateDao.getCateByCateId(cateId);
+    }
+
 
 }

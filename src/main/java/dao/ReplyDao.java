@@ -8,8 +8,8 @@ import java.util.List;
 
 @Repository
 public interface ReplyDao {
-    public int getAllReplyByUserIdNum(@Param("userid") int userid,@Param("search") String search);
-    public List<Reply> getAllReplyByUserId(@Param("start") int start,@Param("size") int size,@Param("userid") int userid,@Param("search") String search);
+    public int getAllReplyByUserIdNum(@Param("userid") int userid,@Param("search") String search,@Param("flag")int flag);
+    public List<Reply> getAllReplyByUserId(@Param("start") int start,@Param("size") int size,@Param("userid") int userid,@Param("search") String search,@Param("flag")int flag);
     public int getAllReplyByCommentIdNum(@Param("commentsid") int commentId);
     public List<Reply> getAllReplyByCommentId(@Param("commentsid") int commentid);
     public void deleteReply(@Param("replyid") int replyid);

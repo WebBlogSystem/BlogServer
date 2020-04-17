@@ -15,4 +15,5 @@ public interface CateService {
     public List<Cate> queryAllNotCatesByEssayIdAndUserId(PageBean pb,int essayid,int userid);
     public boolean addCate(Cate cate);
     public Cate queryCateByCateName(int userId,String catename);
+    public Cate queryCateByCateId(int cateId);
 }

@@ -10,9 +10,9 @@ import java.util.List;
 @Repository
 public interface EssayDao {
     public List<Essay> getAllEssays(@Param("start")int start,@Param("size") int size,@Param("search") String search,@Param("list") int[] flags);
-    public List<Essay> getAllEssaysByUserId(@Param("start")int start,@Param("size") int size,@Param("cateid") int cateid,@Param("userid") int id,@Param("search") String search,@Param("list") int[] flags);
+    public List<Essay> getAllEssaysByUserId(@Param("start")int start,@Param("size") int size,@Param("cateid") int cateid,@Param("userid") int id,@Param("search") String search,@Param("list") int[] flags,@Param("selectway")int selectway);
     public int getAllEssaysNum(@Param("search") String search, @Param("list") int[] flags);
-    public int getAllEssaysByUserIdNum(@Param("cateid") int cateid,@Param("userid") int userid,@Param("search") String search,@Param("list") int[] flags);
+    public int getAllEssaysByUserIdNum(@Param("cateid") int cateid,@Param("userid") int userid,@Param("search") String search,@Param("list") int[] flags,@Param("selectway") int selectway);
     public int getAllEssaysByCateIdNum(@Param("cateid") int cateid,@Param("userid") int userId,@Param("flag") int flag);
     public List<Essay> getAllEssaysByCateId(@Param("start")int start,@Param("size") int size,@Param("cateid") int cateid,@Param("userid") int userId,@Param("flag") int flag);
     public Essay getEssayByEssayId(@Param("essayid") int essayid);

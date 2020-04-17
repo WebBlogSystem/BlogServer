@@ -10,7 +10,7 @@
         </if>
     </select>
     <select id="getCatesByUserId" resultType="domain.Cate">
-        select * from cate where userid=#{userid}
+        select * from cate where userid=#{userid} order by id desc
     </select>
     <select id="getAllCatesByEssayIdNum" resultType="int">
         select count(*) from essaycate where essayid=#{essayid};
@@ -35,5 +35,8 @@
     </insert>
     <select id="getCateByCateName" resultType="domain.Cate">
         select * from cate where name=#{catename} and userid=#{userid}
+    </select>
+    <select id="getCateByCateId" resultType="domain.Cate">
+        select * from cate where id=#{cateid}
     </select>
 </mapper>

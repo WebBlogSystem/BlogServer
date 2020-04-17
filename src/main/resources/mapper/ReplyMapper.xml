@@ -4,13 +4,29 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dao.ReplyDao">
     <select id="getAllReplyByUserIdNum" resultType="int">
-        select count(*) from reply where fromuserid=#{userid}
+        select count(*) from reply where 1=1
+        <choose>
+            <when test="flag==0">
+                and fromuserid=#{userid}
+            </when>
+            <when test="flag==1">
+                and touserid=#{userid}
+            </when>
+        </choose>
         <if test="search != null and search != ''">
             and msg like CONCAT("%", #{search}, "%")
         </if>
     </select>
     <select id="getAllReplyByUserId" resultType="domain.Reply">
-        select * from reply where fromuserid=#{userid}
+        select * from reply where 1=1
+        <choose>
+            <when test="flag==0">
+                and fromuserid=#{userid}
+            </when>
+            <when test="flag==1">
+                and touserid=#{userid}
+            </when>
+        </choose>
         <if test="search != null and search != ''">
             and msg like CONCAT("%", #{search}, "%")
         </if>

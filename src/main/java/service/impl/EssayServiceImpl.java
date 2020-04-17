@@ -30,8 +30,8 @@ public class EssayServiceImpl implements EssayService {
     }
 
     @Override
-    public List<Essay> queryAllEssaysByUserId(PageBean pb,int cateId, int id,String search,int[] flag) {
-        return essayDao.getAllEssaysByUserId((pb.getCurrentPage()-1)*10,pb.getPageSize(),cateId,id,search,flag);
+    public List<Essay> queryAllEssaysByUserId(PageBean pb,int cateId, int id,String search,int[] flag,int selectWay) {
+        return essayDao.getAllEssaysByUserId((pb.getCurrentPage()-1)*10,pb.getPageSize(),cateId,id,search,flag,selectWay);
     }
 
     @Override
@@ -48,8 +48,8 @@ public class EssayServiceImpl implements EssayService {
         return essayDao.getAllEssaysNum(search,params);
     }
     @Override
-    public int queryAllEssaysByUserIdNum(int cateId,int userid,String search,int[] flag) {
-        return essayDao.getAllEssaysByUserIdNum(cateId,userid,search,flag);
+    public int queryAllEssaysByUserIdNum(int cateId,int userid,String search,int[] flag,int selectWay) {
+        return essayDao.getAllEssaysByUserIdNum(cateId,userid,search,flag,selectWay);
     }
 
     @Override

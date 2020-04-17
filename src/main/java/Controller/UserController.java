@@ -87,23 +87,37 @@ public class UserController {
         } else {
 //            request.getSession().setAttribute("user", user);
             CurrentUser cuser=new CurrentUser(_user);
+            Set<Integer> integers = SessionData.getUser_session().keySet();
+            for(Integer key:integers){
+                if(SessionData.getUser_session().get(key)==request.getSession()){
+                    HttpSession userKey=SessionData.getUser_session().get(key);
+                    userKey.invalidate();
+                }
+            }
             if (SessionData.getUser_session().containsKey(cuser.getId())) {
                 HttpSession httpSession = SessionData.getUser_session().get(cuser.getId());
                 if (httpSession != null) {
-                    httpSession.removeAttribute("user");
-                    if(httpSession != request.getSession()) {
-                        httpSession.invalidate();
-                    }
-                    WebSocketSession webSocketSession = SessionData.getUser_websocketSession().get(cuser.getId());
-                    LoginCheck loginCheck = new LoginCheck(false, "当前账户已在别处登录");
-                    if (webSocketSession != null) {
-                        webSocketSession.sendMessage(new TextMessage(mapper.writeValueAsString(loginCheck)));
-                        webSocketSession.close();
-                    }
-                    SessionData.getUser_websocketSession().remove(cuser.getId());
+//                    httpSession.removeAttribute("user");
+//                    if(httpSession != request.getSession()) {
+                    httpSession.invalidate();
+//                    } else {
+//                        WebSocketSession userLogin = SessionData.getUser_websocketSession().get(cuser.getId());
+//                        LoginCheck loginCheck = new LoginCheck(false, "当前账户已在别处登录");
+//                        if (userLogin != null) {
+//                            try {
+//                                userLogin.sendMessage(new TextMessage(mapper.writeValueAsString(loginCheck)));
+//                                userLogin.close();
+//                                SessionData.getUser_websocketSession().remove(cuser.getId());
+//                            } catch (IOException e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                        SessionData.getUser_session().remove(cuser.getId());
+//                    }
                 }
             }
             request.getSession().setAttribute("user",cuser);
+            request.getSession().setAttribute("flag",1);
             SessionData.getUser_session().put(cuser.getId(),request.getSession());
             rs.setInfo("登录成功");
             rs.setFlag(true);
@@ -368,6 +382,7 @@ public class UserController {
         int userId=0;
         String search="";
         int cateId;
+        int selectWay = 0;
         if(requestmap.containsKey("cateId")){
             cateId=(Integer)requestmap.get("cateId");
         }else{
@@ -388,19 +403,22 @@ public class UserController {
         if(requestmap.containsKey("search")){
             search=((String)requestmap.get("search")).trim();
         }
+        if(requestmap.containsKey("selectWay")){
+            selectWay = (Integer)(requestmap.get("selectWay"));
+        }
         int[] flag=new int[integer_flag.size()];
         flag[0]=1;
         for(int i=0;i<integer_flag.size();i++){
             flag[i]=integer_flag.get(i);
         }
         PageBean<Map<String, Object>> essayPageBean = new PageBean<>();
-        essayPageBean.setTotalCount(essayService.queryAllEssaysByUserIdNum(cateId,userId,search,flag));
+        essayPageBean.setTotalCount(essayService.queryAllEssaysByUserIdNum(cateId,userId,search,flag,selectWay));
         essayPageBean.setCurrentPage(page);
         essayPageBean.setPageSize(10);
         essayPageBean.setList(new ArrayList<Map<String, Object>>());
         boolean mod = (essayPageBean.getTotalCount() % essayPageBean.getPageSize()) == 0;
         essayPageBean.setTotalPage(mod ? essayPageBean.getTotalCount() / essayPageBean.getPageSize() : (essayPageBean.getTotalCount() / essayPageBean.getPageSize() + 1));
-        List<Essay> essays = essayService.queryAllEssaysByUserId(essayPageBean,cateId,userId,search,flag);
+        List<Essay> essays = essayService.queryAllEssaysByUserId(essayPageBean,cateId,userId,search,flag,selectWay);
         ResultInfo<PageBean> rs = new ResultInfo<PageBean>();
         rs.setFlag(true);
         rs.setRes(essayPageBean);
@@ -484,6 +502,51 @@ public class UserController {
         }else{
             rs.setFlag(false);
             rs.setInfo("editEssay:修改失败");
+        }
+        return rs;
+    }
+    @RequestMapping("/getCateByCateId")
+    public @ResponseBody ResultInfo getCateByCateId(@RequestBody Map<String,String> request) {
+        int cateId;
+        if(request.containsKey("cateId")){
+            cateId=Integer.parseInt(request.get("cateId"));
+        }else{
+            ResultInfo rs=new ResultInfo();
+            rs.setFlag(false);
+            rs.setInfo("cateId参数有误");
+            return rs;
+        }
+        Cate cate=cateService.queryCateByCateId(cateId);
+        ResultInfo rs=new ResultInfo();
+        rs.setFlag(false);
+        rs.setInfo("cateId参数有误");
+        if(cate!=null){
+            rs.setFlag(true);
+            rs.setRes(cate);
+        }
+        return rs;
+    }
+    @RequestMapping("/editCate")
+    public @ResponseBody ResultInfo editCate(@RequestBody Cate cate){
+        Cate _cate=cateService.queryCateByCateId(cate.getId());
+        ResultInfo rs=new ResultInfo();
+        if(_cate==null){
+            rs.setFlag(false);
+            rs.setInfo("cateId错误");
+            return rs;
+        }
+        if(!(_cate.getName().equals(cate.getName()))) {
+            boolean flag=cateService.updateCate(cate.getName(), cate.getId());
+            if(flag){
+                rs.setFlag(true);
+                rs.setRes(cateService.queryCateByCateId(cate.getId()));
+            }else{
+                rs.setFlag(false);
+                rs.setInfo("标签修改失败");
+            }
+        }else{
+            rs.setFlag(false);
+            rs.setInfo("标签名称重复");
         }
         return rs;
     }
@@ -747,13 +810,8 @@ public class UserController {
                 }
             }
             essayService.updateEssayCateNums(essay.getId(),catenums);
-            User user=userService.queryUserByUserId(userId);
-            user.setPoint(user.getPoint()+5);
-            user.setSumpoints(user.getSumpoints()+5);
-            pointService.updateUser(user);
             rs.setFlag(true);
-            rs.setInfo("添加博文成功");
-            rs.setRes(new CurrentUser(user));
+            rs.setInfo("博文已提交审核,审核通过将获得5点活跃值,加油哦骚年");
         }
         return rs;
     }
@@ -797,6 +855,8 @@ public class UserController {
         if(essayCate==null) {
             boolean flag = essayCateService.addEssayCate(essayid, cateid);
             if (flag) {
+                Essay essay=essayService.queryEssayByEssayId(essayid);
+                essayService.updateEssayCateNums(essayid,essay.getCatenums()+1);
                 rs.setFlag(true);
                 rs.setInfo("移动成功");
             }else{
@@ -986,23 +1046,12 @@ public class UserController {
         if(flag){
             String msg=comments.getMsg();
             msg=msg.trim();
+            rs.setFlag(true);
+            rs.setInfo("发表评论成功");
             if(!(msg.length() <= 50 && msg.length() >= 1)){
                 ResultInfo resultInfo=new ResultInfo();
                 resultInfo.setFlag(false);
                 resultInfo.setInfo("评论内容不能为空且长度在1-50位");
-            }
-            User user=userService.queryUserByUserId(comments.getUserId());
-            user.setPoint(user.getPoint()+2);
-            user.setSumpoints(user.getSumpoints()+2);
-            boolean flag2=pointService.updateUser(user);
-            if(flag2){
-                rs.setFlag(true);
-                rs.setInfo("发表评论成功");
-                Map<String,Object> map=new HashMap<String,Object>();
-                comments=commentsService.queryCommentsByCommentsId(comments.getId());
-                map.put("user",new CurrentUser(user));
-                map.put("comment",comments);
-                rs.setRes(map);
             }
         }
         return rs;
@@ -1163,35 +1212,52 @@ public class UserController {
             rs.setInfo("getReplyByUserId缺少参数");
             return rs;
         }
+        int flag=0;
+        if(request.containsKey("flag")){
+            flag=Integer.parseInt(request.get("flag"));
+        }
         String search="";
         if(request.containsKey("search")){
             search=request.get("search");
         }
         PageBean<Map<String, Object>> replyPageBean = new PageBean<>();
-        replyPageBean.setTotalCount(replyService.queryAllReplyByUserIdNum(userId,search));
+        replyPageBean.setTotalCount(replyService.queryAllReplyByUserIdNum(userId,search,flag));
         replyPageBean.setCurrentPage(page);
         replyPageBean.setPageSize(10);
         replyPageBean.setList(new ArrayList<Map<String,Object>>());
         boolean mod = (replyPageBean.getTotalCount() % replyPageBean.getPageSize()) == 0;
         replyPageBean.setTotalPage(mod ? replyPageBean.getTotalCount() / replyPageBean.getPageSize() : (replyPageBean.getTotalCount() / replyPageBean.getPageSize() + 1));
-        List<Reply> replys = replyService.queryAllReplyByUserId(replyPageBean, userId,search);
+        List<Reply> replys = replyService.queryAllReplyByUserId(replyPageBean, userId,search,flag);
         ResultInfo<PageBean> rs = new ResultInfo<PageBean>();
         rs.setFlag(true);
-        if (replys == null) {
-            rs.setRes(null);
-            return rs;
+        if(flag==0){
+            for (Reply reply: replys) {
+                int toUserId = reply.getToUserId();
+                Map<String, Object> map = new HashMap<String, Object>();
+                User touser = userService.queryUserByUserId(toUserId);
+                Essay essay = essayService.queryEssayByEssayId(commentsService.queryCommentsByCommentsId(reply.getCommentsId()).getEssayId());
+                map.put("reply", reply);
+                map.put("user", touser);
+                map.put("essay", essay);
+                replyPageBean.getList().add(map);
+            }
+            rs.setRes(replyPageBean);
+        }else if(flag==1){
+            for (Reply reply: replys) {
+                int toUserId = reply.getFromUserId();
+                Map<String, Object> map = new HashMap<String, Object>();
+                User touser = userService.queryUserByUserId(toUserId);
+                Essay essay = essayService.queryEssayByEssayId(commentsService.queryCommentsByCommentsId(reply.getCommentsId()).getEssayId());
+                map.put("reply", reply);
+                map.put("user", touser);
+                map.put("essay", essay);
+                replyPageBean.getList().add(map);
+            }
+            rs.setRes(replyPageBean);
+        }else{
+            rs.setFlag(false);
+            rs.setInfo("flag参数错误");
         }
-        for (Reply reply: replys) {
-            int toUserId = reply.getToUserId();
-            Map<String, Object> map = new HashMap<String, Object>();
-            User touser = userService.queryUserByUserId(toUserId);
-            Essay essay = essayService.queryEssayByEssayId(commentsService.queryCommentsByCommentsId(reply.getCommentsId()).getEssayId());
-            map.put("reply", reply);
-            map.put("touser", touser);
-            map.put("essay", essay);
-            replyPageBean.getList().add(map);
-        }
-        rs.setRes(replyPageBean);
         return rs;
     }
     //根据回复Id删除相关回复

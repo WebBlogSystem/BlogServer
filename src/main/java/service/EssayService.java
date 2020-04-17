@@ -9,9 +9,9 @@ import java.util.List;
 
 public interface EssayService {
     public List<Essay> queryAllEssays(PageBean pb,String search,int flag);
-    public List<Essay> queryAllEssaysByUserId(PageBean pb,int cateId,int id,String search,int[] flag);
+    public List<Essay> queryAllEssaysByUserId(PageBean pb,int cateId,int id,String search,int[] flag,int selectWay);
     public int queryAllEssaysNum(String search,int flag);
-    public int queryAllEssaysByUserIdNum(int cateId,int userId,String search,int[] flag);
+    public int queryAllEssaysByUserIdNum(int cateId,int userId,String search,int[] flag,int selectWay);
     public int queryAllEssaysByCateIdNum(int cateId, int userId,int flag);
     public List<Essay> queryAllEssaysByCateId(PageBean pb,int cateId,int userId,int flag);
     public Essay queryEssayByEssayId(int essayId);

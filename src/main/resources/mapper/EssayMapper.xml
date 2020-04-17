@@ -23,35 +23,56 @@
         </foreach>
     </select>
     <select id="getAllEssaysByUserIdNum" parameterType="int" resultType="int">
-        select count(*) from essay where 1=1
+        select count(*) from essay as e where 1=1
         <if test="userid != 0">
-            and userid=#{userid}
+            and e.userid=#{userid}
         </if>
         <if test="cateid != 0">
-            and id in (select essayid from essaycate where cateid=#{cateid})
+            and e.id in (select ec.essayid from essaycate as ec where ec.cateid=#{cateid})
         </if>
         <if test="search != null and search != ''">
-            and title like CONCAT("%", #{search}, "%")
+            and e.title like CONCAT("%", #{search}, "%")
         </if>
         <foreach collection="list" item="item" open=" and ( " separator=" or " close=" )">
-            flag=#{item}
+            e.flag=#{item}
         </foreach>
     </select>
     <select id="getAllEssaysByUserId" resultType="domain.Essay">
-        select * from essay where 1=1
-        <if test="userid != 0">
-            and userid=#{userid}
+        <if test="selectway == 0">
+            select * from essay as e where 1=1
+            <if test="userid != 0">
+                and e.userid=#{userid}
+            </if>
+            <if test="cateid != 0">
+                and e.id in (select ec.essayid from essaycate as ec where ec.cateid=#{cateid})
+            </if>
+            <if test="search != null and search != ''">
+                and e.title like CONCAT("%", #{search}, "%")
+            </if>
+            <foreach collection="list" item="item" open=" and ( " separator=" or " close=" )">
+                e.flag=#{item}
+            </foreach>
+            order by e.createtime desc
+            limit #{start},#{size}
         </if>
-        <if test="cateid != 0">
-            and id in (select essayid from essaycate where cateid=#{cateid})
+        <if test="selectway == 1">
+            select * from essay as e where 1=1
+            <if test="userid != 0">
+                and e.userid=#{userid}
+            </if>
+            <if test="cateid != 0">
+                and e.id in (select ec.essayid from essaycate as ec where ec.cateid=#{cateid})
+            </if>
+            <if test="search != null and search != ''">
+                and e.title like CONCAT("%", #{search}, "%")
+            </if>
+            <foreach collection="list" item="item" open=" and ( " separator=" or " close=" )">
+                e.flag=#{item}
+            </foreach>
+            order by (select count(*) from up as u where u.essayid=e.id and flag=1) desc,
+            e.createtime desc
+            limit #{start},#{size}
         </if>
-        <if test="search != null and search != ''">
-            and title like CONCAT("%", #{search}, "%")
-        </if>
-        <foreach collection="list" item="item" open=" and ( " separator=" or " close=" )">
-            flag=#{item}
-        </foreach>
-        order by createtime desc limit #{start},#{size}
     </select>
     <select id="getAllEssaysByCateIdNum" resultType="int">
         <choose>
