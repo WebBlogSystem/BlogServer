@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.EssayCateDao">
+    <insert id="addEssayCate">
+        insert into essaycate (essayid,cateid) values (#{essayid},#{cateid})
+    </insert>
+    <select id="getEssayCate" resultType="domain.EssayCate">
+        select * from essaycate where essayid=#{essayid} and cateid=#{cateid}
+    </select>
+    <delete id="deleteEssayCate">
+        delete from essaycate where essayid=${essayid} and cateid=#{cateid}
+    </delete>
+</mapper>

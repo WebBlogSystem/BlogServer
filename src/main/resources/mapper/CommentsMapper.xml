@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.CommentsDao">
+    <select id="getAllCommentsByUserIdNum" resultType="int">
+        select count(*) from comments where userid=#{userid}
+        <if test="search != null and search != ''">
+            and msg like CONCAT("%", #{search}, "%")
+        </if>
+    </select>
+    <select id="getAllCommentsByUserId" resultType="domain.Comments">
+        select * from comments where userid=#{userid}
+        <if test="search != null and search != ''">
+            and msg like CONCAT("%", #{search}, "%")
+        </if>
+        order by createtime desc
+        limit #{start},#{size}
+    </select>
+    <select id="getCommentByCommentsId" resultType="domain.Comments">
+        select * from comments where id=#{commentsid}
+    </select>
+    <select id="getAllCommentsByEssayIdNum" resultType="int">
+        select count(*) from comments where essayid=#{essayid} and flag=1
+    </select>
+    <select id="getAllCommentsByEssayId" resultType="domain.Comments">
+        select * from comments where essayid=#{essayid} and flag=1 order by createtime desc limit #{start},#{size}
+    </select>
+    <delete id="deleteComments">
+        delete from comments where id=#{commentid}
+    </delete>
+    <select id="getAllCommentsNum">
+        select count(*) from comments where 1=1
+        <if test="search != null and search != ''">
+            and msg like CONCAT("%", #{search}, "%")
+        </if>
+    </select>
+    <select id="getAllComments">
+        select * from comments where 1=1
+        <if test="search != null and search != ''">
+            and msg like CONCAT("%", #{search}, "%")
+        </if>
+        order by createtime desc limit #{start},#{size}
+    </select>
+    <insert id="addComments" useGeneratedKeys="true" keyProperty="id">
+        insert into comments (userid,essayid,msg) values(#{comment.userId},#{comment.essayId},#{comment.msg})
+    </insert>
+    <update id="updateCommentsFlag">
+        update comments set flag=#{flag},checkmsg=#{checkmsg} where id=#{commentid}
+    </update>
+    <select id="getAllCommentsCheckNum" resultType="int">
+        select count(*) from comments where flag=#{flag}
+    </select>
+    <select id="getAllCommentsCheck" resultType="domain.Comments">
+        select * from comments where flag=#{flag} limit #{start},#{size}
+    </select>
+</mapper>

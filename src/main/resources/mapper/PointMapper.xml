@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.PointDao">
+    <update id="updateUser">
+        update user set point=#{user.point},sumpoints=#{user.sumpoints} where id=#{user.id}
+    </update>
+</mapper>

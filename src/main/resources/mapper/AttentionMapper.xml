@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.AttentionDao">
+    <delete id="deleteAttention">
+        delete from attention where fromuserid=#{attention.fromUserId} and touserid=#{attention.toUserId}
+    </delete>
+    <insert id="addAttention">
+        insert into attention (fromuserid,touserid) values(#{attention.fromUserId},#{attention.toUserId})
+    </insert>
+    <select id="getAttention" resultType="domain.Attention">
+        select * from attention where fromuserid=#{attention.fromUserId} and toUserId=#{attention.toUserId}
+    </select>
+</mapper>

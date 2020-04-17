@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.UpDao">
+    <select id="getUps" resultType="int">
+        select count(*) from up where essayid=#{id} and flag=#{flag}
+    </select>
+    <select id="getUpByUserIdAndEssayId" resultType="domain.Up">
+        select * from up where essayid=#{essayid} and userid=#{userid} limit 1
+    </select>
+    <insert id="addUp">
+        insert into up (essayid,userid,flag) values (#{essayid},#{userid},#{flag})
+    </insert>
+    <update id="updateUp">
+        update up set flag=#{flag} where id=#{id}
+    </update>
+</mapper>

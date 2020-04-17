@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.LetterDao">
+    <select id="getAllChatroomByUserIdNum" resultType="int">
+        select count(*) from letter where userid1=#{userid} or userid2=#{userid};
+    </select>
+    <select id="getAllChatroomByUserId" resultType="domain.Letter">
+        select * from letter where userid1=#{userid} or userid2=#{userid} limit #{start},#{size}
+    </select>
+    <delete id="deleteChatroom">
+        delete from letter where id=#{letterid}
+    </delete>
+    <select id="getLetterByUserId1AndUserId2" resultType="domain.Letter">
+        select * from letter where (userid1=#{letter.userId1} and userid2=#{letter.userId2}) or (userid2=#{letter.userId1} and userid1=#{letter.userId2}) limit 1;
+    </select>
+    <insert id="addLetter" useGeneratedKeys="true" keyProperty="id">
+        insert into letter (userid1,userid2) values(#{letter.userId1},#{letter.userId2})
+    </insert>
+    <select id="getLetterByLetterId" resultType="domain.Letter">
+        select * from letter where id=#{letterid}
+    </select>
+</mapper>
