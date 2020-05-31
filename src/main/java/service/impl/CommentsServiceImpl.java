@@ -81,12 +81,12 @@ public class CommentsServiceImpl implements CommentsService {
     }
 
     @Override
-    public int queryAllCommentsCheckNum(int flag) {
-        return commentsDao.getAllCommentsCheckNum(flag);
+    public int queryAllCommentsCheckNum() {
+        return commentsDao.getAllCommentsCheckNum();
     }
 
     @Override
-    public List<Comments> queryAllCommentsCheck(PageBean pb, int flag) {
-        return commentsDao.getAllCommentsCheck((pb.getCurrentPage()-1)*10,pb.getPageSize(),flag);
+    public List<Comments> queryAllCommentsCheck(PageBean pb) {
+        return commentsDao.getAllCommentsCheck((pb.getCurrentPage()-1)*10,pb.getPageSize());
     }
 }

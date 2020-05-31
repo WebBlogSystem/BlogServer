@@ -1615,7 +1615,7 @@ public class UserController {
             return rs;
         }
         rs.setFlag(true);
-        rs.setRes("/images/"+img);
+        rs.setRes(img);
         return rs;
     }
 

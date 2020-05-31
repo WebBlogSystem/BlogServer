@@ -79,14 +79,14 @@ import javax.activation.*;
 
 public class MailUtils
 {
-    private static final String USER = "1306104920@qq.com"; // 发件人称号，同邮箱地址
-    private static final String PASSWORD = "arbvosrcvdtvhieb"; // 如果是qq邮箱可以使户端授权码，或者登录密码
+    private static final String USER = "admin@myblog.com"; // 发件人称号，同邮箱地址
+    private static final String PASSWORD = "123456"; // 如果是qq邮箱可以使户端授权码，或者登录密码
     public static void sendMail(String to, String text, String title)
     {
         // 获取系统属性
         final Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.host", "smtp.qq.com");
+        props.put("mail.smtp.host", "myblog.com");
         // 发件人的账号
         props.put("mail.user", USER);
         //发件人的密码

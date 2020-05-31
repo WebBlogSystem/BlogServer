@@ -9,7 +9,7 @@ import java.util.List;
 @Repository
 public interface CommentsHistoryDao {
     public void addCommentsHistory(@Param("commentsHistory") CommentsHistory commentsHistory);
-    public List<CommentsHistory> getCommentsHistorys(@Param("start") int start,@Param("size")int size,@Param("search")String search);
-    public int getCommentsHistorysNum(@Param("search")String search);
+    public List<CommentsHistory> getCommentsHistorys(@Param("start") int start,@Param("size")int size,@Param("search") String search);
+    public int getCommentsHistorysNum(@Param("search") String search);
 
 }

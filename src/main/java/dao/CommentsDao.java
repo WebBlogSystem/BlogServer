@@ -18,6 +18,6 @@ public interface CommentsDao {
     public List<Comments> getAllComments(@Param("start") int start,@Param("size") int size,@Param("search") String search);
     public int addComments(@Param("comment") Comments comments);
     public void updateCommentsFlag(@Param("flag") int flag,@Param("checkmsg") String checkmsg,@Param("commentid") int commentId);
-    public int getAllCommentsCheckNum(@Param("flag") int flag);
-    public List<Comments> getAllCommentsCheck(@Param("start")int start,@Param("size")int size,@Param("flag")int flag);
+    public int getAllCommentsCheckNum();
+    public List<Comments> getAllCommentsCheck(@Param("start")int start,@Param("size")int size);
 }

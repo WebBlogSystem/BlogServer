@@ -66,17 +66,17 @@ public class AdminController {
             Set<Integer> integers = SessionData.getUser_session().keySet();
             for(Integer key:integers){
                 if(SessionData.getAdmin_session().get(key)==request.getSession()){
-                    HttpSession adminKey=SessionData.getAdmin_session().get(key);
-                    adminKey.invalidate();
+                    rs.setFlag(false);
+                    rs.setInfo("对不起 当前会话已登录有账号");
+                    return rs;
                 }
             }
             if (SessionData.getAdmin_session().containsKey(administrator.getId())) {
                 HttpSession httpSession = SessionData.getAdmin_session().get(administrator.getId());
                 if (httpSession != null) {
-                    httpSession.removeAttribute("admin");
-                    if(httpSession != request.getSession()) {
+
                         httpSession.invalidate();
-                    }
+//                    }
                 }
             }
             request.getSession().setAttribute("admin",administrator);
@@ -90,7 +90,7 @@ public class AdminController {
     // 查询未审核或已经审核的文章
     @RequestMapping("/getEssays")
     public @ResponseBody ResultInfo getEssays(@RequestBody Map<String,String> request) {
-        //0 表示查询未审核的文章,1 表示查询已经审过的文章
+        //0 表示查询未审核的文章,1 表示查询所有的文章
         int flag=0;
         if(request.containsKey("flag")){
             flag=Integer.parseInt(request.get("flag"));
@@ -223,9 +223,8 @@ public class AdminController {
         }
         Boolean res=essayService.updateEssayFlag(flag,checkmsg,essayId);
         EssayHistory essayHistory=new EssayHistory();
-        essayHistory.setCheckmsg(checkmsg);
-        essayHistory.setEssayId(essayId);
-        essayHistory.setFlag(flag);
+        Essay essay = essayService.queryEssayByEssayId(essayId);
+        essayHistory.setMy(essay);
         Boolean res2=historyService.addEssayHistory(essayHistory);
         ResultInfo rs=new ResultInfo();
         rs.setFlag(false);
@@ -242,7 +241,7 @@ public class AdminController {
         }
         return rs;
     }
-    // 审核文章
+    // 审核评论
     @RequestMapping("/setCommentFlag")
     public @ResponseBody ResultInfo setCommentFlag(@RequestBody Map<String,String> request){
         int commentId,flag=0;
@@ -277,15 +276,13 @@ public class AdminController {
             }else{
                 ResultInfo resultInfo=new ResultInfo();
                 resultInfo.setFlag(false);
-                resultInfo.setInfo("输入的审核信息长度过长");
+                resultInfo.setInfo("输入的审核信息长度不能为空且在1-10个字符以内");
                 return resultInfo;
             }
         }
         Boolean res=commentsService.updateCommentsFlag(flag,checkmsg,commentId);
         CommentsHistory commentsHistory=new CommentsHistory();
-        commentsHistory.setCheckmsg(checkmsg);
-        commentsHistory.setCommentid(commentId);
-        commentsHistory.setFlag(flag);
+        commentsHistory.setMy(commentsService.queryCommentsByCommentsId(commentId));
         Boolean res2=historyService.addCommentsHistory(commentsHistory);
         ResultInfo rs=new ResultInfo();
         rs.setFlag(false);
@@ -304,29 +301,28 @@ public class AdminController {
     }
     @RequestMapping("/getComments")
     public @ResponseBody ResultInfo getComments(@RequestBody Map<String,String> request){
-        int flag,page=1;
-        if(request.containsKey("flag")){
-            flag=Integer.parseInt(request.get("flag"));
-        }else{
-            ResultInfo rs=new ResultInfo();
-            rs.setFlag(false);
-            rs.setInfo("getComments参数错误");
-            return rs;
-        }
+        int page=1;
         if(request.containsKey("page")) {
             page = Integer.parseInt(request.get("page"));
         }
-        PageBean<Comments> commentsPageBean = new PageBean<>();
-        commentsPageBean.setTotalCount(commentsService.queryAllCommentsCheckNum(flag));
+        PageBean<Map<String,Object>> commentsPageBean = new PageBean<>();
+        commentsPageBean.setTotalCount(commentsService.queryAllCommentsCheckNum());
         commentsPageBean.setCurrentPage(page);
         commentsPageBean.setPageSize(10);
+        commentsPageBean.setList(new ArrayList<Map<String,Object>>());
         boolean mod = (commentsPageBean.getTotalCount() % commentsPageBean.getPageSize()) == 0;
         commentsPageBean.setTotalPage(mod ? commentsPageBean.getTotalCount() / commentsPageBean.getPageSize() : (commentsPageBean.getTotalCount() /commentsPageBean.getPageSize() + 1));
-        List<Comments> comments = commentsService.queryAllCommentsCheck(commentsPageBean, flag);
-        commentsPageBean.setList(comments);
+        List<Comments> comments = commentsService.queryAllCommentsCheck(commentsPageBean);
         ResultInfo<PageBean> rs = new ResultInfo<PageBean>();
         rs.setFlag(true);
         rs.setRes(commentsPageBean);
+        for(Comments comments1:comments){
+            CurrentUser currentUser=new CurrentUser(userService.queryUserByUserId(comments1.getUserId()));
+            Map<String,Object> map=new HashMap<String,Object>();
+            map.put("user",currentUser);
+            map.put("comment",comments1);
+            rs.getRes().getList().add(map);
+        }
         return rs;
     }
     @RequestMapping("/getEssayHistorys")
@@ -343,20 +339,18 @@ public class AdminController {
         essayPageBean.setTotalCount(historyService.queryEssayHistorysNum(search));
         essayPageBean.setCurrentPage(page);
         essayPageBean.setPageSize(10);
-        essayPageBean.setList(new ArrayList<Map<String, Object>>());
+        essayPageBean.setList(new ArrayList<Map<String,Object>>());
         boolean mod = (essayPageBean.getTotalCount() % essayPageBean.getPageSize()) == 0;
         essayPageBean.setTotalPage(mod ? essayPageBean.getTotalCount() / essayPageBean.getPageSize() : (essayPageBean.getTotalCount() / essayPageBean.getPageSize() + 1));
         List<EssayHistory> essayHistorys=historyService.queryEssayHistorys(essayPageBean,search);
         ResultInfo<PageBean> rs = new ResultInfo<PageBean>();
         rs.setFlag(true);
         rs.setRes(essayPageBean);
-        for (EssayHistory essayHistory: essayHistorys) {
-            Essay essay=essayService.queryEssayByEssayId(essayHistory.getEssayId());
-            CurrentUser user=new CurrentUser(userService.queryUserByUserId(essay.getUserId()));
-            Map map = new HashMap();
-            map.put("history", essayHistory);
-            map.put("essay", essay);
-            map.put("user",user);
+        for(EssayHistory essayHistory: essayHistorys) {
+            CurrentUser currentUser=new CurrentUser(userService.queryUserByUserId(essayHistory.getUserId()));
+            Map<String,Object> map=new HashMap<String,Object>();
+            map.put("user",currentUser);
+            map.put("essayHistory",essayHistory);
             rs.getRes().getList().add(map);
         }
         return rs;
@@ -383,43 +377,38 @@ public class AdminController {
         rs.setFlag(true);
         rs.setRes(commentsPageBean);
         for (CommentsHistory commentsHistory: commentsHistorys) {
-            Comments comments=commentsService.queryCommentsByCommentsId(commentsHistory.getCommentid());
-            CurrentUser user=new CurrentUser(userService.queryUserByUserId(comments.getUserId()));
+            CurrentUser user=new CurrentUser(userService.queryUserByUserId(commentsHistory.getUserId()));
             Map map = new HashMap();
-            map.put("history", commentsHistory);
-            map.put("comment", comments);
+            map.put("commentHistory", commentsHistory);
             map.put("user",user);
             rs.getRes().getList().add(map);
         }
         return rs;
     }
-//    //查询所有用户
-//    @RequestMapping(path="/getUsers")
-//    public @ResponseBody ResultInfo getUsers(HttpServletRequest request){
-//        int page;
-//        String res = request.getParameter("page");
-//        if (res == null || Integer.parseInt(res) <= 0) {
-//            page = 1;
-//        }else{
-//            page = Integer.parseInt(res);
-//        }
-//        String search="";
-//        String _search=request.getParameter("search");
-//        if(_search!=null){
-//            search=_search;
-//        }
-//        PageBean<User> userPageBean = new PageBean<>();
-//        userPageBean.setTotalCount(userService.queryUsersNum(search));
-//        userPageBean.setCurrentPage(page);
-//        userPageBean.setPageSize(10);
-//        boolean mod = (userPageBean.getTotalCount() % userPageBean.getPageSize()) == 0;
-//        userPageBean.setTotalPage(mod ? userPageBean.getTotalCount() / userPageBean.getPageSize() : (userPageBean.getTotalCount() / userPageBean.getPageSize() + 1));
-//        List<User> users = userService.queryUsers(userPageBean,search);
-//        ResultInfo<PageBean> rs = new ResultInfo<PageBean>();
-//        rs.setFlag(true);
-//        rs.setRes(userPageBean);
-//        return rs;
-//    }
+    //查询所有用户
+    @RequestMapping(path="/getUsers")
+    public @ResponseBody ResultInfo getUsers(@RequestBody Map<String,String> request){
+        int page=1;
+        if(request.containsKey("page")){
+            page=Integer.parseInt(request.get("page"));
+        }
+        String search="";
+        if(request.containsKey("search")){
+            search=request.get("search");
+        }
+        PageBean<User> userPageBean = new PageBean<>();
+        userPageBean.setTotalCount(userService.queryUsersNum(search));
+        userPageBean.setCurrentPage(page);
+        userPageBean.setPageSize(10);
+        boolean mod = (userPageBean.getTotalCount() % userPageBean.getPageSize()) == 0;
+        userPageBean.setTotalPage(mod ? userPageBean.getTotalCount() / userPageBean.getPageSize() : (userPageBean.getTotalCount() / userPageBean.getPageSize() + 1));
+        List<User> users = userService.queryUsers(userPageBean,search);
+        userPageBean.setList(users);
+        ResultInfo<PageBean> rs = new ResultInfo<PageBean>();
+        rs.setFlag(true);
+        rs.setRes(userPageBean);
+        return rs;
+    }
 //    //退出
 //    @RequestMapping("/exit")
 //    public @ResponseBody ResultInfo exit(HttpServletRequest request){
@@ -429,26 +418,28 @@ public class AdminController {
 //        rs.setInfo("已退出");
 //        return rs;
 //    }
-//    //根据用户id删除用户
-//    @RequestMapping("/deleteUserByUserId")
-//    public @ResponseBody ResultInfo deleteUser(HttpServletRequest request){
-//        ResultInfo rs=new ResultInfo();
-//        String _userid=request.getParameter("userid");
-//        if(_userid==null){
-//            rs.setFlag(false);
-//            rs.setInfo("参数错误");
-//            return rs;
-//        }
-//        boolean flag=userService.deleteUser(Integer.parseInt(_userid));
-//        if(flag){
-//            rs.setFlag(true);
-//            rs.setInfo("删除用户成功");
-//        }else{
-//            rs.setFlag(false);
-//            rs.setInfo("删除用户失败");
-//        }
-//        return rs;
-//    }
+    //根据用户id删除用户
+    @RequestMapping("/deleteUserByUserId")
+    public @ResponseBody ResultInfo deleteUser(@RequestBody Map<String,String> request){
+        ResultInfo rs=new ResultInfo();
+        int userId;
+        if(request.containsKey("userId")){
+            userId=Integer.parseInt(request.get("userId"));
+        }else{
+            rs.setFlag(false);
+            rs.setInfo("参数错误");
+            return rs;
+        }
+        boolean flag=userService.deleteUser(userId);
+        if(flag){
+            rs.setFlag(true);
+            rs.setInfo("删除用户成功");
+        }else{
+            rs.setFlag(false);
+            rs.setInfo("删除用户失败");
+        }
+        return rs;
+    }
 //    //获取所有博文
 //    @RequestMapping(path = "/getAllEssaysListByTime")
 //    public @ResponseBody
@@ -686,26 +677,27 @@ public class AdminController {
 //        rs.setRes(essayPageBean);
 //        return rs;
 //    }
-//    //根据文章id删除一篇文章
-//    @RequestMapping(path="/deleteEssayByEssayId")
-//    public @ResponseBody ResultInfo deleteEssayByEssayId(HttpServletRequest request){
-//        String essayId=request.getParameter("essayid");
-//        ResultInfo rs=new ResultInfo();
-//        if(essayId==null){
-//            rs.setFlag(false);
-//            rs.setInfo("参数错误");
-//            return rs;
-//        }
-//        boolean flag=essayService.deleteEssay(Integer.parseInt(essayId));
-//        if(flag){
-//            rs.setFlag(true);
-//            rs.setInfo("删除成功");
-//        }else{
-//            rs.setFlag(false);
-//            rs.setInfo("删除失败");
-//        }
-//        return rs;
-//    }
+    //根据文章id删除一篇文章
+    @RequestMapping(path="/deleteEssayByEssayId")
+    public @ResponseBody ResultInfo deleteEssayByEssayId(@RequestBody Map<String,String> request){
+        int essayId;
+        ResultInfo rs=new ResultInfo();
+        if(!request.containsKey("essayId")){
+            rs.setFlag(false);
+            rs.setInfo("参数错误");
+            return rs;
+        }
+        essayId=Integer.parseInt(request.get("essayId"));
+        boolean flag=essayService.deleteEssay(essayId);
+        if(flag){
+            rs.setFlag(true);
+            rs.setInfo("删除成功");
+        }else{
+            rs.setFlag(false);
+            rs.setInfo("删除失败");
+        }
+        return rs;
+    }
 //    //根据文章Id获取相关的文章
 //    @RequestMapping(path = "/getEssayByEssayId")
 //    public @ResponseBody
@@ -1173,34 +1165,5 @@ public class AdminController {
 //        rs.setRes("/images/"+img);
 //        return rs;
 //    }
-//    //修改密码
-//    @RequestMapping(path="/setPassword")
-//    public @ResponseBody ResultInfo setPassworld(HttpServletRequest request){
-//        String _oldpassword=request.getParameter("oldpassword");
-//        String _newpassword=request.getParameter("newpassword");
-//        String _adminid=request.getParameter("adminid");
-//        ResultInfo rs=new ResultInfo();
-//        if(_oldpassword==null || _newpassword ==null || _adminid==null){
-//            rs.setFlag(false);
-//            rs.setInfo("参数有误");
-//            return rs;
-//        }
-//        int adminid=Integer.parseInt(_adminid);
-//        Administrator ad=administratorService.queryAdminById(adminid);
-//        if(ad==null || !ad.getPassword().equals(_oldpassword)){//需要经过md5util
-//            rs.setFlag(false);
-//            rs.setInfo("原密码错误");
-//            return rs;
-//        }
-//        boolean flag=administratorService.updatePassword(adminid,_newpassword);
-//        if(flag){
-//            rs.setFlag(true);
-//            rs.setInfo("设置密码成功");
-//        }else{
-//            rs.setFlag(false);
-//            rs.setInfo("设置密码失败");
-//        }
-//        return rs;
-//
-//    }
+
 }

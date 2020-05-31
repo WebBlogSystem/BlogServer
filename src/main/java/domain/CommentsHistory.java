@@ -4,20 +4,34 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import java.util.*;
 public class CommentsHistory {
     private int id;
-    private int commentid;
     private int flag;
     private String checkmsg;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createtime;
+    private int userId;
+    private String msg;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date commentcreatetime;
+
+
+    public void setMy(Comments comments){
+        this.flag=comments.getFlag();
+        this.checkmsg=comments.getCheckmsg();
+        this.userId=comments.getUserId();
+        this.msg=comments.getMsg();
+        this.commentcreatetime=comments.getCreatetime();
+    }
 
     @Override
     public String toString() {
         return "CommentsHistory{" +
                 "id=" + id +
-                ", commentid=" + commentid +
                 ", flag=" + flag +
                 ", checkmsg='" + checkmsg + '\'' +
                 ", createtime=" + createtime +
+                ", userId=" + userId +
+                ", msg='" + msg + '\'' +
+                ", commentcreatetime=" + commentcreatetime +
                 '}';
     }
 
@@ -27,14 +41,6 @@ public class CommentsHistory {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public int getCommentid() {
-        return commentid;
-    }
-
-    public void setCommentid(int commentid) {
-        this.commentid = commentid;
     }
 
     public int getFlag() {
@@ -59,5 +65,29 @@ public class CommentsHistory {
 
     public void setCreatetime(Date createtime) {
         this.createtime = createtime;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
+    }
+
+    public Date getCommentcreatetime() {
+        return commentcreatetime;
+    }
+
+    public void setCommentcreatetime(Date commentcreatetime) {
+        this.commentcreatetime = commentcreatetime;
     }
 }

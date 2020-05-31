@@ -49,9 +49,9 @@
         update comments set flag=#{flag},checkmsg=#{checkmsg} where id=#{commentid}
     </update>
     <select id="getAllCommentsCheckNum" resultType="int">
-        select count(*) from comments where flag=#{flag}
+        select count(*) from comments where flag=0
     </select>
     <select id="getAllCommentsCheck" resultType="domain.Comments">
-        select * from comments where flag=#{flag} limit #{start},#{size}
+        select * from comments where flag=0 limit #{start},#{size}
     </select>
 </mapper>

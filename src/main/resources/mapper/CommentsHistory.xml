@@ -4,19 +4,19 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="dao.CommentsHistoryDao">
     <select id="getCommentsHistorys" resultType="domain.CommentsHistory">
-        select ch.* from commenthistory as ch,comments as c where ch.commentid = c.id
+        select * from commenthistory where 1=1
         <if test="search != null and search != ''">
-            and c.msg like CONCAT('%', #{search}, '%')
+            and msg like CONCAT('%', #{search}, '%')
         </if>
-        order by ch.createtime desc limit #{start},#{size}
+        order by createtime desc,id desc limit #{start},#{size}
     </select>
     <insert id="addCommentsHistory">
-        insert into commenthistory (commentid,flag,checkmsg) values(#{commentsHistory.commentid},#{commentsHistory.flag},#{commentsHistory.checkmsg})
+        insert into commenthistory (flag,checkmsg,userid,msg,commentcreatetime) values(#{commentsHistory.flag},#{commentsHistory.checkmsg},#{commentsHistory.userId},#{commentsHistory.msg},#{commentsHistory.commentcreatetime})
     </insert>
     <select id="getCommentsHistorysNum" resultType="int">
-        select count(*) from commenthistory as ch,comments as c where ch.commentid = c.id
+        select count(*) from commenthistory where 1=1
         <if test="search != null and search != ''">
-            and c.msg like CONCAT('%', #{search}, '%')
+            and msg like CONCAT('%', #{search}, '%')
         </if>
     </select>
 </mapper>

@@ -33,8 +33,8 @@
     <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
         <property name="driverClassName" value="com.mysql.cj.jdbc.Driver"/>
         <property name="url" value="jdbc:mysql://localhost:3306/blog?useSSL=false&amp;serverTimezone=UTC" />
-        <property name="username" value="dingjinfeng" />
-        <property name="password" value="123456" />
+        <property name="username" value="root" />
+        <property name="password" value="root" />
         <property name="validationQuery" value="SELECT 'x'" />
     </bean>
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">

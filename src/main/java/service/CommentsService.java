@@ -15,6 +15,6 @@ public interface CommentsService {
     public List<Comments> queryAllComments(PageBean pb,String search);
     public boolean addComments(Comments comments);
     public boolean updateCommentsFlag(int flag,String checkmsg,int commentId);
-    public int queryAllCommentsCheckNum(int flag);
-    public List<Comments> queryAllCommentsCheck(PageBean pb,int flag);
+    public int queryAllCommentsCheckNum();
+    public List<Comments> queryAllCommentsCheck(PageBean pb);
 }

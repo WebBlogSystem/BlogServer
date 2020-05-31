@@ -9,6 +9,16 @@ public class Comments {
     private int userId;
     private int essayId;
     private String msg;
+    private String checkmsg;
+
+    public String getCheckmsg() {
+        return checkmsg;
+    }
+
+    public void setCheckmsg(String checkmsg) {
+        this.checkmsg = checkmsg;
+    }
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createtime;
     private int flag;
@@ -20,6 +30,7 @@ public class Comments {
                 ", userId=" + userId +
                 ", essayId=" + essayId +
                 ", msg='" + msg + '\'' +
+                ", checkmsg='" + checkmsg + '\'' +
                 ", createtime=" + createtime +
                 ", flag=" + flag +
                 '}';

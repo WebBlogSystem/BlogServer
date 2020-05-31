@@ -54,6 +54,7 @@
         </mvc:interceptor>
         <mvc:interceptor>
             <mvc:mapping path="/admin/getEssays"/>
+            <mvc:mapping path="/admin/getUsers"/>
             <mvc:mapping path="/admin/setPassword"/>
             <mvc:mapping path="/admin/setCommentFlag"/>
             <mvc:mapping path="/admin/setEssayFlag"/>
